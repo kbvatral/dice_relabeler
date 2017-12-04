@@ -2,7 +2,7 @@ from sympy import *
 init_printing(use_unicode=True)
 
 ### Variable Declarations ###
-DIE_SIDES = 6 # The number of sides on each of the two dice to be relabeled
+DIE_SIDES = 12 # The number of sides on each of the two dice to be relabeled
 x, y, z = symbols('x y z')
 
 
@@ -68,7 +68,8 @@ def remove_duplicates(partition_list):
     """A function to remove the duplicates from a list, `partition_list`, and return the resulting list"""
     filtered_list = []
     for i in partition_list:
-        if i not in filtered_list:
+        swapped = [i[1], i[0]] # TODO improve later, for 2 dice structures we can do this direct swap check though
+        if (i not in filtered_list) and (swapped not in filtered_list):
             filtered_list.append(i)
     return filtered_list
 
@@ -105,5 +106,6 @@ for i in possible_partitions:
     expanded_expressions.append(current_element)
 
 # Print the final results
+print("")
 for i in expanded_expressions:
     print(i)
