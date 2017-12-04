@@ -2,7 +2,7 @@ from sympy import *
 init_printing(use_unicode=True)
 
 ### Variable Declarations ###
-DIE_SIDES = 12 # The number of sides on each of the two dice to be relabeled
+DIE_SIDES = 8 # The number of sides on each of the two dice to be relabeled
 x, y, z = symbols('x y z')
 
 
@@ -101,11 +101,34 @@ possible_partitions = remove_duplicates(possible_partitions)
 expanded_expressions = []
 for i in possible_partitions:
     current_element = []
-    current_element.append(expand(expand_partition_factor(i[0])))
-    current_element.append(expand(expand_partition_factor(i[1])))
+    current_element.append(Poly(expand(expand_partition_factor(i[0])),x))
+    current_element.append(Poly(expand(expand_partition_factor(i[1])),x))
     expanded_expressions.append(current_element)
+
+# Get the coeffcients and exponents from the expressions to construct the dice
+poly_terms = []
+for i in expanded_expressions:
+    current_set = []
+    
+    first_die = [] # A list containing the sides of the first die
+    for monomials in i[0].terms(): # Loop through each of the monomials in the die expression
+        for coefficent in range(monomials[1]): # Add the exponent to the list of sides equal to the number of the coefficent
+            first_die.append(monomials[0][0])
+
+    # Do the same for the second polynomial
+    second_die = [] # A list containing the sides of the second die
+    for monomials in i[1].terms():
+        for coefficent in range(monomials[1]):
+            second_die.append(monomials[0][0])
+    
+    current_set.append(first_die)
+    current_set.append(second_die)
+    poly_terms.append(current_set)
+
 
 # Print the final results
 print("")
-for i in expanded_expressions:
-    print(i)
+for dice_set in poly_terms:
+    print("Die 1: ", dice_set[0])
+    print("Die 2: ", dice_set[1])
+    print("")
