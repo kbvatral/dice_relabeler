@@ -11,8 +11,8 @@ x, y, z = symbols('x y z')
 # Setup argument input on console
 parser = argparse.ArgumentParser()
 group = parser.add_mutually_exclusive_group()
-group.add_argument("-v", "--verbose", action="store_true")
-group.add_argument("-q", "--quiet", action="store_true")
+group.add_argument("-v", "--verbose", action="store_true", help="Enable verbose output")
+group.add_argument("-q", "--quiet", action="store_true", help="Enable quiet output")
 parser.add_argument("-s", "--sides", type=int, help="set the number of sides on each die")
 args = parser.parse_args()
 
@@ -126,8 +126,8 @@ possible_partitions = remove_duplicates(possible_partitions)
 expanded_expressions = []
 for i in possible_partitions:
     current_element = []
-    current_element.append(Poly(expand(expand_partition_factor(i[0])),x))
-    current_element.append(Poly(expand(expand_partition_factor(i[1])),x))
+    current_element.append(expand(expand_partition_factor(i[0])))
+    current_element.append(expand(expand_partition_factor(i[1])))
     expanded_expressions.append(current_element)
 
 # Get the coeffcients and exponents from the expressions to construct the dice
@@ -136,13 +136,13 @@ for i in expanded_expressions:
     current_set = []
     
     first_die = [] # A list containing the sides of the first die
-    for monomials in i[0].terms(): # Loop through each of the monomials in the die expression
+    for monomials in Poly(i[0],x).terms(): # Loop through each of the monomials in the die expression
         for coefficent in range(monomials[1]): # Add the exponent to the list of sides equal to the number of the coefficent
             first_die.append(monomials[0][0])
 
     # Do the same for the second polynomial
     second_die = [] # A list containing the sides of the second die
-    for monomials in i[1].terms():
+    for monomials in Poly(i[1],x).terms():
         for coefficent in range(monomials[1]):
             second_die.append(monomials[0][0])
     
@@ -161,10 +161,20 @@ for dice_set in poly_terms:
     counter += 1 # counter to track the polynomial associated with the die
     poly_set = expanded_expressions[counter]
     
-    print("Die 1: ", dice_set[0])
+    if not QUIET:
+        print("Die 1: ", end="")
+    print(dice_set[0])
+    if VERBOSE: # Print the polynomial when verbose
+        print("Polynomial 1: ")
+        pprint(poly_set[0])
+        print("")
+
+    if not QUIET:        
+        print("Die 2: ", end="")
+    print(dice_set[1])
     if VERBOSE:
-        print("Polynomial 1: ", poly_set[0]) # Print the polynomial when verbose
-    print("Die 2: ", dice_set[1])
-    if VERBOSE:
-        print("Polynomial 2: ", poly_set[1])
+        print("Polynomial 2: ")
+        pprint(poly_set[1])
+        print("")
+    
     print("")
