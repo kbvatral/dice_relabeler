@@ -1,10 +1,25 @@
+import argparse
 from sympy import *
 init_printing(use_unicode=True)
 
 ### Variable Declarations ###
-DIE_SIDES = 20 # The number of sides on each of the two dice to be relabeled
+DIE_SIDES = 6 # The number of sides on each of the two dice to be relabeled
+VERBOSE = False
+QUIET = False
 x, y, z = symbols('x y z')
 
+# Setup argument input on console
+parser = argparse.ArgumentParser()
+group = parser.add_mutually_exclusive_group()
+group.add_argument("-v", "--verbose", action="store_true")
+group.add_argument("-q", "--quiet", action="store_true")
+parser.add_argument("-s", "--sides", type=int, help="set the number of sides on each die")
+args = parser.parse_args()
+
+VERBOSE = args.verbose
+QUIET = args.quiet
+if args.sides:
+    DIE_SIDES = args.sides # If sides is specified, change the `DIE_SIDES`
 
 # Admittingly don't understand quite how this function works as of this point
 def partition(collection):
@@ -138,9 +153,18 @@ for i in expanded_expressions:
 
 # Print the final results
 print("")
-print("There are ", len(poly_terms), " possible labelings")
-print("")
+if not QUIET:
+    print("For two dice, each with ", DIE_SIDES, " sides, there are ", len(poly_terms), " possible labelings")
+    print("")
+counter = -1
 for dice_set in poly_terms:
+    counter += 1 # counter to track the polynomial associated with the die
+    poly_set = expanded_expressions[counter]
+    
     print("Die 1: ", dice_set[0])
+    if VERBOSE:
+        print("Polynomial 1: ", poly_set[0]) # Print the polynomial when verbose
     print("Die 2: ", dice_set[1])
+    if VERBOSE:
+        print("Polynomial 2: ", poly_set[1])
     print("")
