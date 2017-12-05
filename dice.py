@@ -2,7 +2,7 @@ from sympy import *
 init_printing(use_unicode=True)
 
 ### Variable Declarations ###
-DIE_SIDES = 8 # The number of sides on each of the two dice to be relabeled
+DIE_SIDES = 20 # The number of sides on each of the two dice to be relabeled
 x, y, z = symbols('x y z')
 
 
@@ -33,23 +33,33 @@ def convert_to_factors(die):
 
     return factor_list
 
-def check_partition(partition):
+def check_partition(partition_to_check):
     """A function to check a list of expressions, `partition`, to see if it is a valid die labeling. Returns boolean"""
     # Right now we only care about two dice relabelings, so get rid of anything else
-    if (len(partition)!=2):
+    if (len(partition_to_check)!=2):
         return False
     # `partition` contains two lists, each represent a factor
-    sub_list_one = partition[0]
-    sub_list_two = partition[1]
+    sub_list_one = partition_to_check[0]
+    sub_list_two = partition_to_check[1]
 
     factor_one = expand_partition_factor(sub_list_one) # Convert the lists into sympy expressions for the factors
     factor_two = expand_partition_factor(sub_list_two)
+
+    # Check for negative sides
+    poly_factor_one = Poly(factor_one, x)
+    poly_factor_two = Poly(factor_two, x)
+    for coefficient in poly_factor_one.coeffs():
+        if coefficient<0:
+            return False
+    for coefficient in poly_factor_two.coeffs():
+        if coefficient<0:
+            return False
 
     # Check for constant terms so that we don't have 0 sides
     if ( (factor_one.evalf(subs={x: 0}) == 1) or (factor_two.evalf(subs={x: 0}) == 1) ):
         return False
 
-    # Check if each factor has four terms by evaluating at 1
+    # Check if each factor has `DIE_SIDES` terms by evaluating at 1
     if ( (factor_one.evalf(subs={x: 1}) != DIE_SIDES) or (factor_two.evalf(subs={x: 1}) != DIE_SIDES) ):
         return False
 
@@ -127,6 +137,8 @@ for i in expanded_expressions:
 
 
 # Print the final results
+print("")
+print("There are ", len(poly_terms), " possible labelings")
 print("")
 for dice_set in poly_terms:
     print("Die 1: ", dice_set[0])
